@@ -189,6 +189,8 @@ def r_ply(type_):
                 InlineKeyboardButton("⏸", "puse"),
                 InlineKeyboardButton("▶️", "resume"),
                 InlineKeyboardButton("⏭", "skip"),
+                InlineKeyboardButton("🔇", "mute"),
+                InlineKeyboardButton("🔊", "unmute"),
             ],
             [
                 InlineKeyboardButton("Playlist 📖", "playlist"),
@@ -327,25 +329,23 @@ async def m_cb(b, cb):
 
     the_data = cb.message.reply_markup.inline_keyboard[1][0].callback_data
     if type_ == "pause":
-        if (chet_id not in callsmusic.active_chats) or (
-            callsmusic.active_chats[chet_id] == "paused"
-        ):
-            await cb.answer("Chat is not connected!", show_alert=True)
-        else:
-            callsmusic.pause(chet_id)
             await cb.answer("Music Paused!")
+            
+          if:
+            callsmusic.pause(chet_id)
+          else:
+            await cb.answer("Chat is not connected!", show_alert=True)
             await cb.message.edit(
                 updated_stats(m_chat, qeue), reply_markup=r_ply("play")
             )
 
     elif type_ == "play":
-        if (chet_id not in callsmusic.active_chats) or (
-            callsmusic.active_chats[chet_id] == "playing"
-        ):
-            await cb.answer("Chat is not connected!", show_alert=True)
-        else:
-            callsmusic.resume(chet_id)
             await cb.answer("Music Resumed!")
+            
+          if:
+            callsmusic.resume(chet_id)
+          else:
+            await cb.answer("Chat is not connected!", show_alert=True)
             await cb.message.edit(
                 updated_stats(m_chat, qeue), reply_markup=r_ply("pause")
             )
@@ -374,21 +374,19 @@ async def m_cb(b, cb):
         await cb.message.edit(msg)
 
     elif type_ == "resume":
-        if (chet_id not in callsmusic.active_chats) or (
-            callsmusic.active_chats[chet_id] == "playing"
-        ):
-            await cb.answer("Chat is not connected or already playng", show_alert=True)
-        else:
+            await cb.answer("Music Resumed!")   
+          if:
             callsmusic.resume(chet_id)
-            await cb.answer("Music Resumed!")
+          else:
+            await cb.answer("Chat is not connected or already playng", show_alert=True)
+            
     elif type_ == "puse":
-        if (chet_id not in callsmusic.active_chats) or (
-            callsmusic.active_chats[chet_id] == "paused"
-        ):
-            await cb.answer("Chat is not connected or already paused", show_alert=True)
-        else:
-            callsmusic.pause(chet_id)
             await cb.answer("Music Paused!")
+          if:
+            callsmusic.pause(chet_id)
+          else:
+            await cb.answer("Chat is not connected or already paused", show_alert=True)
+            
     elif type_ == "cls":
         await cb.answer("Closed menu")
         await cb.message.delete()
@@ -411,6 +409,7 @@ async def m_cb(b, cb):
             ]
         )
         await cb.message.edit(stats, reply_markup=marr)
+        
     elif type_ == "skip":
         if qeue:
             qeue.pop(0)
@@ -440,6 +439,30 @@ async def m_cb(b, cb):
             await cb.message.edit("Successfully Left the Chat!")
         else:
             await cb.answer("Chat is not connected!", show_alert=True)
+            
+     elif type_ == "mute":
+              result = callsmusic.mute(chet_id)
+              await cb.message.edit("Successfully Muted")
+            if:
+              result == 0
+            else:
+              await cb.message.edit("Chat is not connected or Already muted", show_alert=True)
+            if:
+              result == 1
+            else:
+              await cb.message.edit("Chat is not connected or Not in call", show_alert=True)
+        
+    elif type_ == "unmute":
+              result = callsmusic.unmute(chet_id)
+              await cb.message.edit("Successfully unmuted")
+            if:
+              result == 0
+            else:
+              await cb.message.edit("Chat is not connected or Not muted", show_alert=True)
+            if:
+              result == 1
+            else:
+              await message.edit("Chat is not connected or Not in call", show_alert=True)
 
 
 @Client.on_message(command("play") & other_filters)
@@ -543,13 +566,13 @@ async def play(_, message: Message):
         )
         file_name = get_file_name(audio)
         title = file_name
-        thumb_name = "https://telegra.ph/file/f6086f8909fbfeb0844f2.png"
+        thumb_name = "https://telegra.ph/file/f20681c89cb26892e1204.jpg"
         thumbnail = thumb_name
         duration = round(audio.duration / 60)
         views = "Locally added"
         requested_by = message.from_user.first_name
         await generate_cover(requested_by, title, views, duration, thumbnail)
-        file_path = await convert(
+        file = await convert(
             (await message.reply_to_message.download(file_name))
             if not path.isfile(path.join("downloads", file_name))
             else file_name
@@ -606,7 +629,7 @@ async def play(_, message: Message):
         )
         requested_by = message.from_user.first_name
         await generate_cover(requested_by, title, views, duration, thumbnail)
-        file_path = await convert(youtube.download(url))
+        file = await convert(youtube.download(url))
     else:
         query = ""
         for i in message.command[1:]:
@@ -660,7 +683,7 @@ async def play(_, message: Message):
                             "5️⃣", callback_data=f"plll 4|{query}|{user_id}"
                         ),
                     ],
-                    [InlineKeyboardButton(text="❌", callback_data="cls")],
+                    [InlineKeyboardButton(text="❌ Close", callback_data="cls")],
                 ]
             )
             await lel.edit(toxxt, reply_markup=koyboard, disable_web_page_preview=True)
@@ -717,14 +740,14 @@ async def play(_, message: Message):
             )
             requested_by = message.from_user.first_name
             await generate_cover(requested_by, title, views, duration, thumbnail)
-            file_path = await convert(youtube.download(url))
+            file = await convert(youtube.download(url))
     chat_id = get_chat_id(message.chat)
     if chat_id in callsmusic.active_chats:
-        position = await queues.put(chat_id, file=file_path)
+        position = await queues.put(chat_id, file=file)
         qeue = que.get(chat_id)
         s_name = title
         r_by = message.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         await message.reply_photo(
@@ -740,11 +763,11 @@ async def play(_, message: Message):
         qeue = que.get(chat_id)
         s_name = title
         r_by = message.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         try:
-            await callsmusic.set_stream(chat_id, file_path)
+            await callsmusic.set_stream(chat_id, file)
         except:
             message.reply("Group Call is not connected or I can't join it")
             return
@@ -873,14 +896,14 @@ async def ytplay(_, message: Message):
     )
     requested_by = message.from_user.first_name
     await generate_cover(requested_by, title, views, duration, thumbnail)
-    file_path = await convert(youtube.download(url))
+    file = await convert(youtube.download(url))
     chat_id = get_chat_id(message.chat)
     if chat_id in callsmusic.active_chats:
-        position = await queues.put(chat_id, file=file_path)
+        position = await queues.put(chat_id, file=file)
         qeue = que.get(chat_id)
         s_name = title
         r_by = message.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         await message.reply_photo(
@@ -896,11 +919,11 @@ async def ytplay(_, message: Message):
         qeue = que.get(chat_id)
         s_name = title
         r_by = message.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         try:
-            await callsmusic.set_stream(chat_id, file_path)
+            await callsmusic.set_stream(chat_id, file)
         except:
             message.reply("Group Call is not connected or I can't join it")
             return
@@ -962,7 +985,7 @@ async def jiosaavn(client: Client, message_: Message):
                     # print(e)
                     await lel.edit(
                         f"<b>🔴 Flood Wait Error 🔴 \nUser {user.first_name} couldn't join your group due to heavy requests for userbot! Make sure user is not banned in group."
-                        "\n\nOr manually add @MailMusic to your Group and try again</b>",
+                        "\n\nOr manually add @DaisyXmusic to your Group and try again</b>",
                     )
     try:
         await USER.get_chat(chid)
@@ -1015,14 +1038,14 @@ async def jiosaavn(client: Client, message_: Message):
             [InlineKeyboardButton(text="❌ Close", callback_data="cls")],
         ]
     )
-    file_path = await convert(wget.download(slink))
+    file = await convert(wget.download(slink))
     chat_id = get_chat_id(message_.chat)
     if chat_id in callsmusic.active_chats:
-        position = await queues.put(chat_id, file=file_path)
+        position = await queues.put(chat_id, file=file)
         qeue = que.get(chat_id)
         s_name = sname
         r_by = message_.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         await res.delete()
@@ -1039,11 +1062,11 @@ async def jiosaavn(client: Client, message_: Message):
         qeue = que.get(chat_id)
         s_name = sname
         r_by = message_.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         try:
-            await callsmusic.set_stream(chat_id, file_path)
+            await callsmusic.set_stream(chat_id, file)
         except:
             res.edit("Group call is not connected of I can't join it")
             return
@@ -1129,23 +1152,23 @@ async def lol_cb(b, cb):
     )
     requested_by = useer_name
     await generate_cover(requested_by, title, views, duration, thumbnail)
-    file_path = await convert(youtube.download(url))
+    file = await convert(youtube.download(url))
     if chat_id in callsmusic.active_chats:
-        position = await queues.put(chat_id, file=file_path)
+        position = await queues.put(chat_id, file=file)
         qeue = que.get(chat_id)
         s_name = title
         try:
             r_by = cb.message.reply_to_message.from_user
         except:
             r_by = cb.message.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
         await cb.message.delete()
         await b.send_photo(
             chat_id,
             photo="final.png",
-            caption=f"#⃣  Song requested by {r_by.mention} <b>queued</b> at position {position}!",
+            caption=f"#⃣  Song requested by {r_by.mention()} <b>queued</b> at position {position}!",
             reply_markup=keyboard,
         )
         os.remove("final.png")
@@ -1158,16 +1181,16 @@ async def lol_cb(b, cb):
             r_by = cb.message.reply_to_message.from_user
         except:
             r_by = cb.message.from_user
-        loc = file_path
+        loc = file
         appendable = [s_name, r_by, loc]
         qeue.append(appendable)
 
-        await callsmusic.set_stream(chat_id, file_path)
+        await callsmusic.set_stream(chat_id, file)
         await cb.message.delete()
         await b.send_photo(
             chat_id,
             photo="final.png",
             reply_markup=keyboard,
-            caption=f"▶️ <b>Playing</b> here the song requested by {r_by.mention} via Youtube Music 😎",
+            caption=f"▶️ <b>Playing</b> here the song requested by {r_by.mention()} via Youtube Music 😎",
         )
         os.remove("final.png")
