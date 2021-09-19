@@ -18,17 +18,16 @@ from MailMusic.config import ASSISTANT_NAME, PROJECT_NAME
 
 
 class Messages:
-    START_MSG = "**Hello 👋 [{}](tg://user?id={})!**\n\n🤖 I am an advanced bot created for playing music in the voice chats of Telegram Groups & Channels.\n\n✅ Send me /help for more info."   
+    START_MSG = "**Hello 👋 [{}](tg://user?id={})!**\n\n🤖 I am an advanced bot created for playing music in the voice chats of Telegram Groups & Channels.\n\n✅ Send me /help for more info."
     HELP_MSG = [
         ".",
-f"""
+        f"""
 **Hey 👋 Welcome back to {PROJECT_NAME}
 ⚪️ {PROJECT_NAME} can play music in your group's voice chat as well as channel voice chats
 ⚪️ Assistant name >> @{ASSISTANT_NAME}
 Click next for instructions**
 """,
-
-f"""
+        f"""
 **Setting up**
 1) Make bot admin (Group and in channel if use cplay)
 2) Start a voice chat
@@ -55,8 +54,7 @@ f"""
 - /playlist: Shows playlist
 *Player cmd and all other cmds except /play, /current  and /playlist  are only for admins of the group.
 """,
-        
-f"""
+        f"""
 **=>> Channel Music Play 🛠**
 ⚪️ For linked group admins only:
 - /cplay [song name] - play song you requested
@@ -77,8 +75,7 @@ channel is also can be used instead of c ( /cplay = /channelplay )
 4) Add @{ASSISTANT_NAME} to the channel as an admin.
 5) Simply send commands in your group.
 """,
-
-f"""
+        f"""
 **=>> More tools 🧑‍🔧**
 - /musicplayer [on/off]: Enable/Disable Music player
 - /admincache: Updates admin info of your group. Try if bot isn't recognize admin

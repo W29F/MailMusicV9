@@ -20,7 +20,6 @@ from asyncio import QueueEmpty
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-from MailMusic.config import que
 from MailMusic.function.admins import set
 from MailMusic.helpers.decorators import authorized_users_only, errors
 from MailMusic.services.callsmusic import callsmusic
