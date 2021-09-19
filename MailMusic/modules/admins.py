@@ -48,7 +48,7 @@ async def update_admin(client, message: Message):
 async def pause(_, message: Message):
     chat_id = get_chat_id(message.chat)
         await message.reply_text("▶️ Paused!")
-        if:
+      if:
         callsmusic.pause(chat_id)
       else:
         await message.reply_text("❗ Nothing is playing!")
