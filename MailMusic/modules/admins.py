@@ -52,6 +52,7 @@ async def pause(_, message: Message):
         callsmusic.pause(chat_id)
       else:
         await message.reply_text("❗ Nothing is playing!")
+        
 
 
 @Client.on_message(command("resume") & other_filters)
@@ -60,10 +61,11 @@ async def pause(_, message: Message):
 async def resume(_, message: Message):
     chat_id = get_chat_id(message.chat)
         await message.reply_text("⏸ Resumed!")
-        if:
-        callsmusic.pause(chat_id)
+      if:
+        callsmusic.resume(chat_id)
       else:
-        await message.reply_text("❗ Nothing is playing!")
+        await message.reply_text("❗ Nothing is paused!")
+        
 
 
 @Client.on_message(command("end") & other_filters)
@@ -105,7 +107,8 @@ async def skip(_, message: Message):
         return
     await message.reply_text(f"- Skipped **{skip[0]}**\n- Now Playing **{qeue[0][0]}**")
     
-    @Client.on_message(command('mute') & other_filters)
+
+@Client.on_message(command('mute') & other_filters)
 @errors
 @authorized_users_only
 async def mute(_, message: Message):
@@ -121,7 +124,7 @@ async def mute(_, message: Message):
       else:
         await message.reply_text("❌ Not in call")
 
-
+        
 @Client.on_message(command('unmute') & other_filters)
 @errors
 @authorized_users_only
